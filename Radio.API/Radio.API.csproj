@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Radio.Domain\Radio.Domain.csproj" />
+    <ProjectReference Include="..\Radio.Infrastructure\Radio.Infrastructure.csproj" />
+  </ItemGroup>
+
+</Project>

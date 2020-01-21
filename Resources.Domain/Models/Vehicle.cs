@@ -8,5 +8,8 @@ namespace Resources.Domain.Models
     {
         public string Name { get; set; }
         public string VIN { get; set; }
+        public string Model { get; set; }
+        public short ProductionYear { get; set; }
+        public bool IsSelected { get; set; }
     }
 }

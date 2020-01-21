@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.VisualBasic;
 using Resources.Domain.Models;
 using Resources.Domain.Services;
 using Resources.Infrastructure;
@@ -11,28 +12,31 @@ using System.Threading.Tasks;
 namespace Resources.API.Controllers
 {
     // api/vehicles
-
+    [ApiController]
     [Route("api/[controller]")]
     public class VehiclesController : ControllerBase
     {
         private readonly IVehicleRepository vehicleRepository;
-
         public VehiclesController(IVehicleRepository vehicleRepository)
         {
             this.vehicleRepository = vehicleRepository;
         }
 
         // GET api/vehicles
-        [HttpGet]
-        public async Task<IActionResult> Get()
-        {
-            var vehicles = await vehicleRepository.GetAsync();
+        //[HttpGet]
+        //public async Task<IActionResult> Get()
+        //{
+        //    var vehicles = await vehicleRepository.GetAsync();
 
-            return Ok(vehicles);
-        }
+        //    return Ok(vehicles);
+        //}
+
+        // Przykład tworzenie własnych ograniczeń (constraints)
+        // https://github.com/sulmar/dotnet-core-routecontraint-polish-validators
+
 
         // GET api/vehicles/10
-        [HttpGet("{id}")]
+        [HttpGet("{id:int}")]
         // MVC 
         // [HttpGet]
         // [Route("{id}")]
@@ -46,9 +50,21 @@ namespace Resources.API.Controllers
             return Ok(vehicle);
         }
 
+        [HttpGet("{vin}")]
+        public async Task<IActionResult> Get(string vin)
+        {
+            var vehicle = await vehicleRepository.GetAsync(vin);
+
+            if (vehicle == null)
+                return NotFound();
+
+            return Ok(vehicle);
+        }
+
         // POST api/vehicles
         [HttpPost]
-        public async Task<IActionResult> Post(Vehicle vehicle)
+        public async Task<IActionResult> Post(Vehicle vehicle, 
+            [FromServices] ISenderService senderService)
         {
             await vehicleRepository.AddAsync(vehicle);
 
@@ -81,6 +97,13 @@ namespace Resources.API.Controllers
             return NoContent();
         }
 
+        // api/vehicles?from=2000&to=2020&name=Toyota
 
+        [HttpGet]
+        public async Task<IActionResult> Get([FromQuery] VehicleSearchCriteria criteria)
+        {
+            var vehicles = await vehicleRepository.GetAsync(criteria);
+            return Ok(vehicles);
+        }
     }
 }

@@ -33,16 +33,37 @@ namespace Resources.API
         {
             services.AddScoped<IVehicleRepository, FakeVehicleRepository>();
             services.AddScoped<Faker<Vehicle>, VehicleFaker>();
-            services.AddControllers();
+            services.AddScoped<ISenderService, SmsSenderService>();
+
+            services.Configure<FakeVehicleRepositoryOptions>(
+                Configuration.GetSection("Vehicles"));
+
+        //    services.AddControllers();
+        }
+
+        public void ConfigureDevelopment(IApplicationBuilder app, IWebHostEnvironment env)
+        {
+            // specific code for development
+
+            Configure(app, env);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+           
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
             }
+
+            int customersCount = int.Parse(Configuration["VehiclesCount"]);
+
+            int count = int.Parse(Configuration["Vehicles:Count"]);
+
+            string connectionString = Configuration.GetConnectionString("ResourcesConnection");
+
 
             app.UseHttpsRedirection();
 
@@ -56,4 +77,15 @@ namespace Resources.API
             });
         }
     }
+
+
+    public static class IWebHostEnvironmentExtensions
+    {
+        public static bool IsTesting(this IWebHostEnvironment env)
+        {
+            return env.EnvironmentName == "Testing";
+        }
+    }
+
+  
 }
