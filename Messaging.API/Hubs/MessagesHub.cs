@@ -48,5 +48,8 @@ namespace Messaging.API.Hubs
         {
             await Clients.Caller.Pong(message);
         }
+
+        // Stream
+        // https://docs.microsoft.com/pl-pl/aspnet/core/signalr/streaming?view=aspnetcore-3.1
     }
 }
