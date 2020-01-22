@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using NLog.Web;
 
 namespace Resources.API
 {
@@ -15,6 +16,11 @@ namespace Resources.API
         {
             CreateHostBuilder(args).Build().Run();
         }
+
+        // https://github.com/NLog/NLog/wiki/Getting-started-with-ASP.NET-Core-3
+
+         // Serilog + Kabana
+        // https://wiadrodanych.pl/wystapienia/keep-calm-and-serilog-elasticsearch-kibana-on-net-core-132-spotkanie-wg-net/
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
@@ -27,6 +33,7 @@ namespace Resources.API
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();
-                });
+                })
+                .UseNLog();
     }
 }

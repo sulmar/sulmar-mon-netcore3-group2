@@ -4,6 +4,7 @@ using System.Data.Common;
 using System.Linq;
 using System.Threading.Tasks;
 using Bogus;
+using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -13,6 +14,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Resources.Domain.Models;
+using Resources.Domain.Models.Validators;
 using Resources.Domain.Services;
 using Resources.Infrastructure;
 using Resources.Infrastructure.Fakers;
@@ -38,7 +40,18 @@ namespace Resources.API
             services.Configure<FakeVehicleRepositoryOptions>(
                 Configuration.GetSection("Vehicles"));
 
-        //    services.AddControllers();
+            services.AddOpenApiDocument(options =>
+            {
+                options.Title = "Resources API";
+                options.DocumentName = "ASP.NET Core 3 REST API";
+                options.Version = "v1";
+                options.Description = "Demo auto-generated API documentation";
+            });
+
+           services
+                .AddControllers()
+                .AddFluentValidation(
+                    options => options.RegisterValidatorsFromAssemblyContaining<VehicleValidator>());
         }
 
         public void ConfigureDevelopment(IApplicationBuilder app, IWebHostEnvironment env)
@@ -68,6 +81,14 @@ namespace Resources.API
             app.UseHttpsRedirection();
 
             app.UseRouting();
+
+            app.UseOpenApi();
+            app.UseSwaggerUi3();
+
+            // open url in webrowser https://localhost:5001/swagger
+
+            // generator NSwag
+            // https://github.com/RicoSuter/NSwag/wiki/NSwagStudio
 
             app.UseAuthorization();
 

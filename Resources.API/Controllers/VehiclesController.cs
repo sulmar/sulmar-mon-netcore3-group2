@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.VisualBasic;
+using NLog.LayoutRenderers;
 using Resources.Domain.Models;
 using Resources.Domain.Services;
 using Resources.Infrastructure;
@@ -51,6 +53,8 @@ namespace Resources.API.Controllers
         }
 
         [HttpGet("{vin}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> Get(string vin)
         {
             var vehicle = await vehicleRepository.GetAsync(vin);
@@ -63,10 +67,17 @@ namespace Resources.API.Controllers
 
         // POST api/vehicles
         [HttpPost]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> Post(Vehicle vehicle, 
             [FromServices] ISenderService senderService)
         {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
             await vehicleRepository.AddAsync(vehicle);
+
+            senderService.Send($"Vehicle {vehicle.Name} was added");
 
             return CreatedAtAction(nameof(GetById), new { Id = vehicle.Id }, vehicle);
         }
