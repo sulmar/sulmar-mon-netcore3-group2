@@ -89,14 +89,32 @@ response:
 
 ## Konfiguracja
 
-- Utworzenie klasy opcji
+### Konfiguracja żródła 
+
+~~~ csharp
+ public static IHostBuilder CreateHostBuilder(string[] args) =>
+            Host.CreateDefaultBuilder(args)
+                .ConfigureAppConfiguration((hostingContext, config) =>
+                {
+                    config.AddXmlFile("appsettings.xml", optional: true,  reloadOnChange: true);
+                    config.AddJsonFile("appsettings.json", optional: false,  reloadOnChange: true);
+                    config.AddJsonFile($"appsettings.{hostingContext.HostingEnvironment.EnvironmentName}.json", optional: true,  reloadOnChange: true);
+                })
+                .ConfigureWebHostDefaults(webBuilder =>
+                {
+                    webBuilder.UseStartup<Startup>();
+                });
+              }
+~~~
+
+### Wstrzykiwanie opcji 
+
 ~~~ csharp
 public class VehicleOptions
 {
     public int Quantity { get; set; }
 }
 ~~~
-
 
 - Plik konfiguracyjny appsettings.json
 
@@ -108,7 +126,7 @@ public class VehicleOptions
   
   ~~~
   
-### Konfiguracja z użyciem interfejsu IOptions<T>
+#### Konfiguracja z użyciem interfejsu IOptions<T>
 
 - Instalacja biblioteki
 
@@ -141,27 +159,11 @@ public class FakeVehicleService
     }
 ~~~
 
-- Konfiguracja opcji
-
-~~~ csharp
- public static IHostBuilder CreateHostBuilder(string[] args) =>
-            Host.CreateDefaultBuilder(args)
-                .ConfigureAppConfiguration((hostingContext, config) =>
-                {
-                    config.AddXmlFile("appsettings.xml", optional: true,  reloadOnChange: true);
-                    config.AddJsonFile("appsettings.json", optional: false,  reloadOnChange: true);
-                    config.AddJsonFile($"appsettings.{hostingContext.HostingEnvironment.EnvironmentName}.json", optional: true,  reloadOnChange: true);
-                })
-                .ConfigureWebHostDefaults(webBuilder =>
-                {
-                    webBuilder.UseStartup<Startup>();
-                });
-              }
-~~~
 
 
 
-### Konfiguracja bez interfejsu IOptions<T>
+
+#### Konfiguracja bez interfejsu IOptions<T>
   
 ~~~ csharp
   public void ConfigureServices(IServiceCollection services)
