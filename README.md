@@ -191,6 +191,18 @@ public class FakeVehicleService
 
 ## Web API
 
+### Włączenie obsługi XML
+
+~~~ csharp
+ public void ConfigureServices(IServiceCollection services)
+ {
+     services
+         .AddMvc(options => options.RespectBrowserAcceptHeader = true)
+         .AddXmlSerializerFormatters();
+ }
+~~~
+
+
 ### Przekazywanie formatu poprzez adres URL
 
 ~~~ csharp
