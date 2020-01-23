@@ -18,6 +18,9 @@ using Resources.Domain.Models.Validators;
 using Resources.Domain.Services;
 using Resources.Infrastructure;
 using Resources.Infrastructure.Fakers;
+using Hangfire;
+using Hangfire.SqlServer;
+
 
 namespace Resources.API
 {
@@ -37,6 +40,8 @@ namespace Resources.API
             services.AddScoped<Faker<Vehicle>, VehicleFaker>();
             services.AddScoped<ISenderService, SmsSenderService>();
 
+            services.AddScoped<IProcessorService, MyProcessorService>();
+
             services.Configure<FakeVehicleRepositoryOptions>(
                 Configuration.GetSection("Vehicles"));
 
@@ -47,6 +52,13 @@ namespace Resources.API
                 options.Version = "v1";
                 options.Description = "Demo auto-generated API documentation";
             });
+
+            services
+                 .AddHangfire(options => 
+                 options.UseSqlServerStorage(Configuration.GetConnectionString("HangfireConnection")));
+
+            services
+                .AddHangfireServer();
 
            services
                 .AddControllers()
@@ -64,11 +76,13 @@ namespace Resources.API
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-           
+            app.UseStaticFiles();
 
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+
+                app.UseHangfireDashboard();
             }
 
             int customersCount = int.Parse(Configuration["VehiclesCount"]);

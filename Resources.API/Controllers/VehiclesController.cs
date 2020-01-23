@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Hangfire;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.VisualBasic;
 using NLog.LayoutRenderers;
@@ -63,6 +64,29 @@ namespace Resources.API.Controllers
                 return NotFound();
 
             return Ok(vehicle);
+        }
+
+
+        // POST api/vehicles/upload
+        // Content-Type: multipart/form-data
+        [HttpPost("upload")]
+        public async Task<IActionResult> OnPostUploadAsync(
+            IList<IFormFile> files,
+            [FromServices] IBackgroundJobClient backgroundJobs,
+            [FromServices] IProcessorService processorService
+            // [FromServices] IHubContext<ProgressHub> progressHubContext;
+            )
+        {
+            foreach (var file in files)
+            {
+                backgroundJobs.Enqueue(() => processorService.Proccess(file.FileName));
+            }
+
+            long size = files.Sum(f => f.Length);
+
+            // TODO: Accepted 202
+
+            return Accepted(new { count = files.Count, size });
         }
 
         // POST api/vehicles
