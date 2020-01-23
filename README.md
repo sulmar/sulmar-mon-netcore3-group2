@@ -86,6 +86,16 @@ response:
 201 Created
 ~~~
 
+## REST API
+
+| Akcja  | Opis                  |
+|--------|-----------------------|
+| GET    | Pobierz               |
+| POST   | Utwórz                |
+| PUT    | Zamień                |
+| PATCH  | Zmień częściowo       |
+| DELETE | Usuń                  |
+| HEAD   | Czy zasób istnieje    |
 
 ## Konfiguracja
 
