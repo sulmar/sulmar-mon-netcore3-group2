@@ -21,6 +21,8 @@ using Resources.Infrastructure.Fakers;
 using Hangfire;
 using Hangfire.SqlServer;
 using MediatR;
+using Resources.Infrastructure.DbRepositories;
+using Microsoft.EntityFrameworkCore;
 
 namespace Resources.API
 {
@@ -44,6 +46,9 @@ namespace Resources.API
 
             services.Configure<FakeVehicleRepositoryOptions>(
                 Configuration.GetSection("Vehicles"));
+
+            // dotnet add package Microsoft.EntityFrameworkCore.SqlServer
+            services.AddDbContext<ResourcesContext>(options => options.UseSqlServer(Configuration.GetConnectionString("ResourcesConnection")));
 
             services.AddOpenApiDocument(options =>
             {

@@ -11,5 +11,6 @@ namespace Resources.Domain.Models
         public string Model { get; set; }
         public short ProductionYear { get; set; }
         public bool IsSelected { get; set; }
+        public Person Owner { get; set; }
     }
 }
