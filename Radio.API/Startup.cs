@@ -71,17 +71,33 @@ namespace Radio.API
             });
 
 
-            app.Run(context => context.Response.WriteAsync("Hello World!"));
+          //  app.Run(context => context.Response.WriteAsync("Hello World!"));
 
-           // app.UseRouting();
+            app.UseRouting();
 
-            //app.UseEndpoints(endpoints =>
-            //{
-            //    endpoints.MapGet("/", async context =>
-            //    {
-            //        await context.Response.WriteAsync("Hello World!");
-            //    });
-            //});
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapGet("/", async context =>
+                {
+                    await context.Response.WriteAsync("Hello World!");
+                });
+
+                endpoints.MapPost("api/radios", async context =>
+                {
+                    context.Response.StatusCode = 201;
+
+                   await context.Response.WriteAsync("Created!");
+                });
+
+                endpoints.MapGet("api/radios/{number:int}", GetRadioHandler);
+
+            });
+        }
+
+        private async Task GetRadioHandler(HttpContext context)
+        {
+            context.Request.RouteValues.TryGetValue("number", out object number);
+            await context.Response.WriteAsync($"Hello radio {number}");
         }
 
         private void DashboardHandler(IApplicationBuilder app)
