@@ -38,17 +38,28 @@ namespace Resources.API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddScoped<IVehicleRepository, FakeVehicleRepository>();
-            services.AddScoped<Faker<Vehicle>, VehicleFaker>();
-            services.AddScoped<ISenderService, SmsSenderService>();
+            #region Fake Services
 
-            services.AddScoped<IProcessorService, MyProcessorService>();
+            //services.AddScoped<IVehicleRepository, FakeVehicleRepository>();
+            //services.AddScoped<Faker<Vehicle>, VehicleFaker>();
+            //services.Configure<FakeVehicleRepositoryOptions>(
+            //    Configuration.GetSection("Vehicles"));
 
-            services.Configure<FakeVehicleRepositoryOptions>(
-                Configuration.GetSection("Vehicles"));
+            #endregion
 
+            #region DbServices
+
+            services.AddScoped<IVehicleRepository, DbVehicleRepository>();
+            
             // dotnet add package Microsoft.EntityFrameworkCore.SqlServer
             services.AddDbContext<ResourcesContext>(options => options.UseSqlServer(Configuration.GetConnectionString("ResourcesConnection")));
+
+            #endregion
+
+            #region Other
+            services.AddScoped<ISenderService, SmsSenderService>();
+            services.AddScoped<IProcessorService, MyProcessorService>();
+            #endregion
 
             services.AddOpenApiDocument(options =>
             {

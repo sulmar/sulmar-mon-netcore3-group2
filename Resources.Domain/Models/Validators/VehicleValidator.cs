@@ -25,11 +25,11 @@ namespace Resources.Domain.Models.Validators
             RuleFor(p => p.ProductionYear).InclusiveBetween((short)1945, (short)DateTime.Today.Year);
             RuleFor(p => p.VIN).NotEmpty().Length(17);
 
-            RuleFor(p => p.Id).MustAsync(async (id, token) =>
-            {
-                bool exists = await vehicleRepository.ExistsAsync(id);
-                return !exists;
-            }).WithMessage("ID Must be unique");
+            //RuleFor(p => p.Id).MustAsync(async (id, token) =>
+            //{
+            //    bool exists = await vehicleRepository.ExistsAsync(id);
+            //    return !exists;
+            //}).WithMessage("ID Must be unique");
         }
 
         private bool ValidModel(string manufacture, string model)

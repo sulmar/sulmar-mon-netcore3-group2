@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Resources.Domain.Models;
 using Resources.Domain.Services;
 using System;
@@ -12,16 +13,45 @@ namespace Resources.Infrastructure.DbRepositories
     public class DbVehicleRepository : IVehicleRepository
     {
         private readonly ResourcesContext context;
+        private readonly ILogger<DbVehicleRepository> logger;
 
-        public DbVehicleRepository(ResourcesContext context)
+        public DbVehicleRepository(
+            ResourcesContext context, 
+            ILogger<DbVehicleRepository> logger)
         {
             this.context = context;
+            this.logger = logger;
         }
 
         public async Task AddAsync(Vehicle entity)
         {
+            context.ChangeTracker.TrackGraph(entity, e =>
+            {
+                if (e.Entry.IsKeySet)
+                {
+                    e.Entry.State = EntityState.Unchanged;
+                }
+                else
+                {
+                    e.Entry.State = EntityState.Added;
+                }
+            });
+
+            //  context.Entry(entity.Owner).State = EntityState.Unchanged;
+
+            LogState(entity);
             await context.Vehicles.AddAsync(entity);
+
+            var entries = context.ChangeTracker.Entries().ToList();
+
+            LogState(entity);
             await context.SaveChangesAsync();
+            LogState(entity);
+        }
+
+        private void LogState(Vehicle entity)
+        {
+            logger.LogInformation(context.Entry(entity).State.ToString());
         }
 
         public Task<bool> ExistsAsync(int id)
@@ -48,17 +78,20 @@ namespace Resources.Infrastructure.DbRepositories
                 query = query.Where(v => v.Name.Contains(criteria.Name));
             }
 
-            return await query.ToListAsync();
+            return await query.AsNoTracking().ToListAsync();
         }
 
         public Task<Vehicle> GetAsync(string vin)
         {
-            return context.Vehicles.SingleOrDefaultAsync(v => v.VIN == vin);
+            return context.Vehicles
+                .AsNoTracking()
+                .IgnoreQueryFilters()
+                .SingleOrDefaultAsync(v => v.VIN == vin);
         }
 
         public async Task<IEnumerable<Vehicle>> GetAsync()
         {
-            return await context.Vehicles.ToListAsync();
+            return await context.Vehicles.AsNoTracking().ToListAsync();
         }
 
         public async Task<Vehicle> GetAsync(int id)
@@ -68,15 +101,43 @@ namespace Resources.Infrastructure.DbRepositories
 
         public async Task RemoveAsync(int id)
         {
-            Vehicle vehicle = await GetAsync(id);
-            context.Vehicles.Remove(vehicle);
+            // Vehicle entity = await GetAsync(id);
+
+            Vehicle entity = new Vehicle { Id = id };
+
+            LogState(entity);
+            context.Vehicles.Remove(entity);
+
+
+            LogState(entity);
             await context.SaveChangesAsync();
+            LogState(entity);
         }
 
         public async Task UpdateAsync(Vehicle entity)
         {
+            LogState(entity);
+
             context.Vehicles.Update(entity);
+            LogState(entity);
+            await context.SaveChangesAsync();
+            LogState(entity);
+        }
+
+        public async Task UpdateModelAsync(int id, string model)
+        {
+            Vehicle vehicle = new Vehicle { Id = id, Model = model };
+            context.Entry(vehicle).Property(p => p.Model).IsModified = true;
             await context.SaveChangesAsync();
         }
+
+        //public async Task UpdateModelAsync(int id, string propertyName, string value)
+        //{
+        //    Vehicle vehicle = new Vehicle { Id = id };
+        //    vehicle["Model"] = value;
+        //    context.Entry(vehicle).Property(propertyName).IsModified = true;
+        //    await context.SaveChangesAsync();
+        //}
+
     }
 }
