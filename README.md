@@ -86,3 +86,90 @@ response:
 201 Created
 ~~~
 
+
+## Konfiguracja
+
+- Utworzenie klasy opcji
+~~~ csharp
+public class VehicleOptions
+{
+    public int Quantity { get; set; }
+}
+~~~
+
+
+- Plik konfiguracyjny appsettings.json
+
+~~~ json
+{
+  "VehicleOptions": {
+    "Quantity": 40
+  },
+  
+  ~~~
+
+- Instalacja biblioteki
+
+~~~ bash
+ dotnet add package Microsoft.Extensions.Options
+~~~
+
+- Wstrzykiwanie opcji
+
+~~~ csharp
+
+public class FakeVehicleService
+{
+   private readonly VehicleOptions options;
+
+    public FakeCustomersService(IOptions<VehicleOptions> options)
+    {
+        this.options = options.Value;
+    }
+}
+       
+~~~
+
+~~~ csharp
+        
+      public void ConfigureServices(IServiceCollection services)
+      {
+          services.Configure<VehicleOptions>(Configuration.GetSection("VehicleOptions"));
+      }
+    }
+~~~
+
+- Konfiguracja opcji
+
+~~~ csharp
+ public static IHostBuilder CreateHostBuilder(string[] args) =>
+            Host.CreateDefaultBuilder(args)
+                .ConfigureAppConfiguration((hostingContext, config) =>
+                {
+                    config.AddXmlFile("appsettings.xml", optional: true);
+                    config.AddJsonFile("appsettings.json", optional: false);
+                    config.AddJsonFile($"appsettings.{hostingContext.HostingEnvironment.EnvironmentName}.json", optional: true);
+                })
+                .ConfigureWebHostDefaults(webBuilder =>
+                {
+                    webBuilder.UseStartup<Startup>();
+                });
+              }
+~~~
+
+
+
+- Konfiguracja bez interfejsu IOptions<T>
+  
+~~~ csharp
+  public void ConfigureServices(IServiceCollection services)
+        {
+            var vehicleOptions = new VehicleOptions();
+            Configuration.GetSection("VehicleOptions").Bind(vehicleOptions);
+            services.AddSingleton(vehicleOptions);
+
+            services.Configure<VehicleOptions>(Configuration.GetSection("VehicleOptions"));
+        }
+
+~~~
+
