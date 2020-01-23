@@ -1,8 +1,11 @@
 ﻿using Hangfire;
+using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.VisualBasic;
 using NLog.LayoutRenderers;
+using Resources.API.Events;
+using Resources.API.Handlers;
 using Resources.Domain.Models;
 using Resources.Domain.Services;
 using Resources.Infrastructure;
@@ -20,9 +23,14 @@ namespace Resources.API.Controllers
     public class VehiclesController : ControllerBase
     {
         private readonly IVehicleRepository vehicleRepository;
-        public VehiclesController(IVehicleRepository vehicleRepository)
+        private readonly IMediator mediator;
+
+        public VehiclesController(
+            IVehicleRepository vehicleRepository,
+            IMediator mediator)
         {
             this.vehicleRepository = vehicleRepository;
+            this.mediator = mediator;
         }
 
         // GET api/vehicles
@@ -58,7 +66,9 @@ namespace Resources.API.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> Get(string vin)
         {
-            var vehicle = await vehicleRepository.GetAsync(vin);
+            //   var vehicle = await vehicleRepository.GetAsync(vin);
+
+            var vehicle = await mediator.Send(new QueryCommand(vin));
 
             if (vehicle == null)
                 return NotFound();
@@ -99,9 +109,10 @@ namespace Resources.API.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            await vehicleRepository.AddAsync(vehicle);
-
-            senderService.Send($"Vehicle {vehicle.Name} was added");
+            //await vehicleRepository.AddAsync(vehicle);
+            //senderService.Send($"Vehicle {vehicle.Name} was added");
+           
+            await mediator.Publish(new AddVehicleEvent(vehicle));
 
             return CreatedAtAction(nameof(GetById), new { Id = vehicle.Id }, vehicle);
         }

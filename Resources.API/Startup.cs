@@ -20,7 +20,7 @@ using Resources.Infrastructure;
 using Resources.Infrastructure.Fakers;
 using Hangfire;
 using Hangfire.SqlServer;
-
+using MediatR;
 
 namespace Resources.API
 {
@@ -59,6 +59,9 @@ namespace Resources.API
 
             services
                 .AddHangfireServer();
+
+
+            services.AddMediatR(typeof(Startup).Assembly);
 
            services
                 .AddControllers()
