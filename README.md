@@ -107,6 +107,8 @@ public class VehicleOptions
   },
   
   ~~~
+  
+### Konfiguracja z użyciem interfejsu IOptions<T>
 
 - Instalacja biblioteki
 
@@ -146,9 +148,9 @@ public class FakeVehicleService
             Host.CreateDefaultBuilder(args)
                 .ConfigureAppConfiguration((hostingContext, config) =>
                 {
-                    config.AddXmlFile("appsettings.xml", optional: true);
-                    config.AddJsonFile("appsettings.json", optional: false);
-                    config.AddJsonFile($"appsettings.{hostingContext.HostingEnvironment.EnvironmentName}.json", optional: true);
+                    config.AddXmlFile("appsettings.xml", optional: true,  reloadOnChange: true);
+                    config.AddJsonFile("appsettings.json", optional: false,  reloadOnChange: true);
+                    config.AddJsonFile($"appsettings.{hostingContext.HostingEnvironment.EnvironmentName}.json", optional: true,  reloadOnChange: true);
                 })
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
@@ -159,7 +161,7 @@ public class FakeVehicleService
 
 
 
-- Konfiguracja bez interfejsu IOptions<T>
+### Konfiguracja bez interfejsu IOptions<T>
   
 ~~~ csharp
   public void ConfigureServices(IServiceCollection services)
@@ -171,5 +173,17 @@ public class FakeVehicleService
             services.Configure<VehicleOptions>(Configuration.GetSection("VehicleOptions"));
         }
 
+~~~
+
+~~~ csharp
+public class FakeVehicleService
+{
+   private readonly VehicleOptions options;
+
+    public FakeCustomersService(VehicleOptions options)
+    {
+        this.options = options;
+    }
+}
 ~~~
 
