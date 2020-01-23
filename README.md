@@ -3,13 +3,13 @@
 
 ## Struktura projektu
 
-| Projekt  | Technologia  |
-|---|---|
-|  Resources | WebApi  |
-|  Radio | Middleware  |
-|  Navigation  | OWIN  |
-|  Messaging | Signal-R  |
-|  Tracking | gRPC  |
+| Projekt | Opis | Technologia  |
+|---|---|---|
+|  Resources | Usługa do zarządzania pojazdami i osobami | WebApi  |
+|  Radio | Usługa do obsługi radionadajników | Middleware  |
+|  Navigation  | Usługa do obsługi nawigacji | OWIN  |
+|  Messaging | Usługa do komunikacji między osobami | Signal-R  |
+|  Tracking | Usługa do śledzenia pojazdów | gRPC  |
 
 
 ## Przydatne komendy CLI
