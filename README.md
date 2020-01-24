@@ -242,3 +242,9 @@ public class CustomersController : ControllerBase
 
 - Mapping Generator
 https://github.com/cezarypiatek/MappingGenerator
+
+
+# EF Core
+
+## Interceptors
+https://docs.microsoft.com/pl-pl/ef/core/what-is-new/ef-core-3.0/#interception-of-database-operations
