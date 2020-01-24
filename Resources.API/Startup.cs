@@ -23,6 +23,8 @@ using Hangfire.SqlServer;
 using MediatR;
 using Resources.Infrastructure.DbRepositories;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authentication;
+using Resources.API.AuthenticationHandlers;
 
 namespace Resources.API
 {
@@ -50,6 +52,7 @@ namespace Resources.API
             #region DbServices
 
             services.AddScoped<IVehicleRepository, DbVehicleRepository>();
+            services.AddScoped<IPersonRepository, DbPersonRepository>();
             
             // dotnet add package Microsoft.EntityFrameworkCore.SqlServer
             services.AddDbContext<ResourcesContext>(options => options.UseSqlServer(Configuration.GetConnectionString("ResourcesConnection")));
@@ -76,6 +79,9 @@ namespace Resources.API
             services
                 .AddHangfireServer();
 
+            services
+                .AddAuthentication("Basic")
+                .AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>("Basic", null);
 
             services.AddMediatR(typeof(Startup).Assembly);
 
@@ -123,7 +129,9 @@ namespace Resources.API
             // generator NSwag
             // https://github.com/RicoSuter/NSwag/wiki/NSwagStudio
 
+            app.UseAuthentication();
             app.UseAuthorization();
+        
 
             app.UseEndpoints(endpoints =>
             {

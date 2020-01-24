@@ -1,5 +1,6 @@
 ﻿using Hangfire;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.VisualBasic;
@@ -13,11 +14,13 @@ using Resources.Infrastructure.Fakers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace Resources.API.Controllers
 {
     // api/vehicles
+    [Authorize(Roles = "Major")]
     [ApiController]
     [Route("api/[controller]")]
     public class VehiclesController : ControllerBase
@@ -79,6 +82,7 @@ namespace Resources.API.Controllers
 
         // POST api/vehicles/upload
         // Content-Type: multipart/form-data
+        [AllowAnonymous]
         [HttpPost("upload")]
         public async Task<IActionResult> OnPostUploadAsync(
             IList<IFormFile> files,
@@ -121,20 +125,33 @@ namespace Resources.API.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> Put(int id, Vehicle vehicle)
         {
+
             if (id != vehicle.Id)
                 return BadRequest();
+            try
+            {
+                await vehicleRepository.UpdateAsync(vehicle);
+            }
+            catch(InvalidOperationException e)
+            {
+                return BadRequest(e.Message);
+            }
 
-            await vehicleRepository.UpdateAsync(vehicle);
 
             return NoContent();
         }
 
+      
         // DELETE api/vehicles/10
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
+            // TODO: przenieść do filtru
             var exists = await vehicleRepository.ExistsAsync(id);
 
+#if DEBUG
+            Console.WriteLine("XXXX");
+#endif
             if (!exists)
                 return NotFound();
 
@@ -146,8 +163,17 @@ namespace Resources.API.Controllers
         // api/vehicles?from=2000&to=2020&name=Toyota
 
         [HttpGet]
+        [Authorize]
         public async Task<IActionResult> Get([FromQuery] VehicleSearchCriteria criteria)
         {
+            if (!User.Identity.IsAuthenticated)
+            {
+                return Unauthorized();
+            }
+
+            ClaimsIdentity identity = User.Identity as ClaimsIdentity;
+            string mobilePhone = identity.FindFirst(ClaimTypes.MobilePhone).Value;
+
             var vehicles = await vehicleRepository.GetAsync(criteria);
             return Ok(vehicles);
         }

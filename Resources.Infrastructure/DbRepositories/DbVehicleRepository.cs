@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Resources.Domain.Models;
 using Resources.Domain.Services;
@@ -10,6 +11,7 @@ using System.Threading.Tasks;
 
 namespace Resources.Infrastructure.DbRepositories
 {
+
     public class DbVehicleRepository : IVehicleRepository
     {
         private readonly ResourcesContext context;
@@ -83,10 +85,23 @@ namespace Resources.Infrastructure.DbRepositories
 
         public Task<Vehicle> GetAsync(string vin)
         {
-            return context.Vehicles
-                .AsNoTracking()
-                .IgnoreQueryFilters()
-                .SingleOrDefaultAsync(v => v.VIN == vin);
+            //return context.Vehicles
+            //    .AsNoTracking()
+            //    .IgnoreQueryFilters()
+            //    .SingleOrDefaultAsync(v => v.VIN == vin);
+
+            string sql = "select * from dbo.Vehicles where VIN = @vin";
+
+            // string sql = "execute dbo.GetVehiclesByVin @vin
+
+            SqlParameter vinParameter = new SqlParameter("vin", vin);
+
+            return context.Vehicles.FromSqlRaw(sql, vinParameter).SingleOrDefaultAsync();
+
+            return context.Vehicles.FromSqlInterpolated($"select * from dbo.Vehicles where VIN = {vin}").SingleOrDefaultAsync();
+
+            // Mapowanie widoków
+            // https://docs.microsoft.com/pl-pl/ef/core/what-is-new/ef-core-3.0/#reverse-engineering-of-database-views
         }
 
         public async Task<IEnumerable<Vehicle>> GetAsync()
@@ -96,7 +111,8 @@ namespace Resources.Infrastructure.DbRepositories
 
         public async Task<Vehicle> GetAsync(int id)
         {
-            return await context.Vehicles.FindAsync(id);
+            //  await context.Vehicles.FindAsync(id);
+            return await context.Vehicles.Include(p=>p.Owner).SingleOrDefaultAsync(p=>p.Id == id);
         }
 
         public async Task RemoveAsync(int id)
@@ -119,8 +135,18 @@ namespace Resources.Infrastructure.DbRepositories
             LogState(entity);
 
             context.Vehicles.Update(entity);
+
+            context.Entry(entity).Property("LastUpdated").CurrentValue = DateTime.UtcNow;
+
             LogState(entity);
-            await context.SaveChangesAsync();
+            try
+            {
+                await context.SaveChangesAsync();
+            }
+            catch(DbUpdateConcurrencyException e)
+            {
+                throw new InvalidOperationException("W miedzyczasie nastapila zmian");
+            }
             LogState(entity);
         }
 

@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Resources.Infrastructure.DbRepositories;
 
 namespace Resources.Infrastructure.Migrations
 {
     [DbContext(typeof(ResourcesContext))]
-    partial class ResourcesContextModelSnapshot : ModelSnapshot
+    [Migration("20200124081341_ChangeTypeGenderOnPerson")]
+    partial class ChangeTypeGenderOnPerson
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -34,19 +36,10 @@ namespace Resources.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("HashPassword")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("LastName")
                         .IsRequired()
                         .HasColumnType("nvarchar(40)")
                         .HasMaxLength(40);
-
-                    b.Property<string>("UserName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("WorkAddress")
-                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -60,14 +53,8 @@ namespace Resources.Infrastructure.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<string>("GarageAddress")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<bool>("IsRemoved")
                         .HasColumnType("bit");
-
-                    b.Property<DateTime>("LastUpdated")
-                        .HasColumnType("datetime2");
 
                     b.Property<string>("Model")
                         .IsRequired()
@@ -89,11 +76,6 @@ namespace Resources.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(20)")
                         .HasMaxLength(20);
-
-                    b.Property<byte[]>("Version")
-                        .IsConcurrencyToken()
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("rowversion");
 
                     b.HasKey("Id");
 

@@ -4,6 +4,7 @@ using System.IO;
 namespace Resources.Domain.Models
 {
 
+    // 
     public class Vehicle : BaseEntity
     {
         public string Name { get; set; }
@@ -12,6 +13,8 @@ namespace Resources.Domain.Models
         public short ProductionYear { get; set; }
         public bool IsSelected { get; set; }
         public Person Owner { get; set; }
+        public Address GarageAddress { get; set; }
         public bool IsRemoved { get; set; }
+        public byte[] Version { get; set; }
     }
 }

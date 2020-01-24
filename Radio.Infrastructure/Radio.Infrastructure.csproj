@@ -5,6 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\MotorolaRadio\MotorolaRadio.csproj" />
     <ProjectReference Include="..\Radio.Domain\Radio.Domain.csproj" />
   </ItemGroup>
 

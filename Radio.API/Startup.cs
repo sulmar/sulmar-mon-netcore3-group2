@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using MotorolaRadio;
 using Radio.API.Middlewares;
 using Radio.Domain.Services;
 using Radio.Infrastructure;
@@ -20,6 +21,8 @@ namespace Radio.API
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddScoped<IRadio, MotorolaRadioAdapter>();
+
             // services.AddTransient<ISenderService, SmsSenderService>();
             services.AddLogger();
         }
@@ -55,6 +58,15 @@ namespace Radio.API
             //    options => options.Run(context => context.Response.WriteAsync("Hello Dashboard")));
 
             //   app.Map("/dashboard", DashboardHandler);
+
+            app.Map("/radio/status",
+                options => options.Run(context =>
+                {
+                    using IRadio radio = context.RequestServices.GetRequiredService<IRadio>();
+                    radio.Call(new User { Name = "A" }, new User { Name = "B" });
+                    string result = radio.IsOn.ToString();
+                    return context.Response.WriteAsync(result);
+                }));
 
             app.Map("/sensors", node =>
             {               
