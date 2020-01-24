@@ -237,3 +237,8 @@ public class CustomersController : ControllerBase
     }
 }
 ~~~
+
+## Mapowanie encji
+
+- Mapping Generator
+https://github.com/cezarypiatek/MappingGenerator
