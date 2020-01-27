@@ -248,3 +248,9 @@ https://github.com/cezarypiatek/MappingGenerator
 
 ## Interceptors
 https://docs.microsoft.com/pl-pl/ef/core/what-is-new/ef-core-3.0/#interception-of-database-operations
+
+## Diagram stanów
+![diagram]https://github.com/sulmar/sulmar-mon-netcore3-group2/blob/master/Docs/EFCore%20-%20state%20machine.png "Diagram stanów EF")
+
+
+
