@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.VisualBasic;
 using NLog.LayoutRenderers;
 using Resources.API.Events;
+using Resources.API.Filters;
 using Resources.API.Handlers;
 using Resources.Domain.Models;
 using Resources.Domain.Services;
@@ -54,12 +55,14 @@ namespace Resources.API.Controllers
         // MVC 
         // [HttpGet]
         // [Route("{id}")]
+        [VehicleExists]
         public async Task<IActionResult> GetById(int id)
         {
             var vehicle = await vehicleRepository.GetAsync(id);
 
-            if (vehicle == null)
-                return NotFound();
+            // zastąpione przez atrybut [VehicleExists]
+            //if (vehicle == null)
+            //    return NotFound();
 
             return Ok(vehicle);
         }
@@ -144,17 +147,9 @@ namespace Resources.API.Controllers
       
         // DELETE api/vehicles/10
         [HttpDelete("{id}")]
+        [VehicleExists]
         public async Task<IActionResult> Delete(int id)
         {
-            // TODO: przenieść do filtru
-            var exists = await vehicleRepository.ExistsAsync(id);
-
-#if DEBUG
-            Console.WriteLine("XXXX");
-#endif
-            if (!exists)
-                return NotFound();
-
             await vehicleRepository.RemoveAsync(id);
 
             return NoContent();
